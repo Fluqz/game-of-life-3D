@@ -1,4 +1,4 @@
-import { AmbientLight, BufferGeometry, Color, InstancedMesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer, BoxGeometry, Matrix4, GridHelper, AxesHelper, Group, Vector2, MeshNormalMaterial, DirectionalLight, MeshStandardMaterial, Material, Mesh } from "three"
+import { BufferGeometry, InstancedMesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer, BoxGeometry, Matrix4, Group, Vector2, MeshNormalMaterial, DirectionalLight, Material, Mesh } from "three"
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { GameOfLife } from "./game-of-life"
 
@@ -22,10 +22,6 @@ let light
 let interval = 50
 let lastRecordedTime = Date.now()
 
-  // Colors for active/inactive cells
-let alive: Color = new Color(0, 200, 0)
-let dead: Color = new Color(0, 0, 0)
-
 let gol: GameOfLife
 
     // Pause
@@ -41,6 +37,7 @@ let cubeSide: number = 80
 
 const init = () => {
 
+  // @ts-ignore
   container = document.querySelector('#webGL')
 
   width = window.innerWidth
@@ -77,7 +74,9 @@ const init = () => {
 
   material.onBeforeCompile = ( shader ) => {
 
+    
     shader.uniforms.textures = {
+      // @ts-ignore
       time: { value: 1.0 },
 		  resolution: { value: new Vector2(width, height) }
     }
@@ -188,6 +187,7 @@ const draw = () => {
   }
 }
 
+// @ts-ignore
 let togglePause = () => {
 
   pause = !pause

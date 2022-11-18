@@ -1,5 +1,3 @@
-import * as THREE from 'three'
-
 export interface Cell {
     state?: boolean
     neighbours?: number
@@ -93,7 +91,6 @@ export class GameOfLife {
             
                     // And visit all the neighbours of each cell
                     let neighbours = 0; // We'll count the neighbours
-                    let n = 0
                     for (let xx = x - 1; xx <= x + 1; xx++) {
 
                         for (let yy = y - 1; yy <= y + 1; yy++) {  
@@ -135,6 +132,7 @@ export class GameOfLife {
 
             // ONE OR THE OTHER OR BOTH
             // if (cell.neighbours <= 6) cell.state = false // Die unless it has 2 or 3 neighbours
+            // @ts-ignore
             if (cell.neighbours < 4 || cell.neighbours > 6) cell.state = false // Die unless it has 2 or 3 neighbours
         }
         else { // The cell is dead: make it live if necessary  
