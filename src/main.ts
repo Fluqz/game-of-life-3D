@@ -62,7 +62,6 @@ const init = () => {
   gol = new GameOfLife(cubeSide, cubeSide, cubeSide)
 
   boundingbox = new Mesh(new BoxGeometry(cubeSide, cubeSide, cubeSide), new MeshBasicMaterial({ color: 0x000000, wireframe: true }))
-
   scene.add(boundingbox)
 
   // scene.add(new GridHelper(gol.width, gol.width / gol.cellSize))
