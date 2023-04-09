@@ -117,6 +117,7 @@ const init = () => {
 const loop = () => {
 
   requestAnimationFrame(loop)
+  
   if(Date.now() - lastRecordedTime >= interval) {
 
     console.log('gen', gol.generation)
