@@ -2,7 +2,11 @@ import { BufferGeometry, InstancedMesh, MeshBasicMaterial, PerspectiveCamera, Sc
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { GameOfLife } from "./game-of-life"
 
+import Stats from 'three/examples/jsm/libs/stats.module'
+
 import './style.css'
+
+let stats: Stats
 
 let container: HTMLElement
 let renderer: WebGLRenderer
@@ -18,9 +22,6 @@ let ratio: number
 
 let light
 
-  // Variables for timer
-let interval = 50
-let lastRecordedTime = Date.now()
 
 let gol: GameOfLife
 
@@ -36,6 +37,10 @@ let boundingbox: Mesh
 let cubeSide: number = 80
 
 const init = () => {
+
+  stats = Stats()
+  stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+  document.body.appendChild( stats.dom );
 
   // @ts-ignore
   container = document.querySelector('#webGL')
@@ -111,23 +116,29 @@ const init = () => {
 
   draw()
 
+  renderer.render(scene, camera)
+
   window.addEventListener('resize', resize)
 }
 
 const loop = () => {
 
   requestAnimationFrame(loop)
-  
-  if(Date.now() - lastRecordedTime >= interval) {
 
-    console.log('gen', gol.generation)
-    step()
-    lastRecordedTime = Date.now()
-  }
+
+  stats.begin()
+
+
+  console.log('Generation', gol.generation)
 
   orbit.update()
 
+  step()
+
   renderer.render(scene, camera)
+
+
+  stats.end()
 }
 
 const resize = () => {
