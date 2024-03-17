@@ -1,8 +1,9 @@
-import { BufferGeometry, InstancedMesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer, BoxGeometry, Matrix4, Group, Vector2, MeshNormalMaterial, DirectionalLight, Material, Mesh } from "three"
+import { BufferGeometry, InstancedMesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer, BoxGeometry, Matrix4, Group, MeshNormalMaterial, DirectionalLight, Material, Mesh } from "three"
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { GameOfLife } from "./game-of-life"
 
 import Stats from 'three/examples/jsm/libs/stats.module'
+// @ts-ignore
 import GUI from 'three/examples/jsm/libs/lil-gui.module.min.js'
 
 import './style.css'
@@ -57,7 +58,7 @@ const init = () => {
 
   gui = new GUI()
   let fpsFolder = gui.addFolder('FPS')
-  fpsFolder.add(FPSParam, 'maxFPS', 0, 60, .1).name( 'Max FPS' ).onChange(v => { 
+  fpsFolder.add(FPSParam, 'maxFPS', 0, 60, .1).name( 'Max FPS' ).onChange((v:number) => { 
 
     fps = v
     frameRate = 1000 / fps
