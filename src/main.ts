@@ -3,10 +3,12 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { GameOfLife } from "./game-of-life"
 
 import Stats from 'three/examples/jsm/libs/stats.module'
+import GUI from 'three/examples/jsm/libs/lil-gui.module.min.js'
 
 import './style.css'
 
 let stats: Stats
+let gui: GUI
 
 let container: HTMLElement
 let renderer: WebGLRenderer
@@ -36,12 +38,50 @@ let boundingbox: Mesh
 
 let cubeSide: number = 80
 
+let fps = 1
+
 const init = () => {
 
+  // Game of Life instance
+  gol = new GameOfLife(cubeSide, cubeSide, cubeSide)
+
+  // STATS PANEL
   stats = Stats()
   stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
   document.body.appendChild( stats.dom );
 
+  // GUI PANEL
+  const FPSParam = {
+    maxFPS: fps
+  }
+
+  gui = new GUI()
+  let fpsFolder = gui.addFolder('FPS')
+  fpsFolder.add(FPSParam, 'maxFPS', 0, 60, .1).name( 'Max FPS' ).onChange(v => { 
+
+    fps = v
+    frameRate = 1000 / fps
+  })
+
+  let rulesFolder = gui.addFolder('Rules')
+  let deathRulesFolder = rulesFolder.addFolder('Dies')
+  deathRulesFolder.add(gol.rules.alive, 'minNeighbours', 0, 8, 1).name('min neighbours')
+  deathRulesFolder.add(gol.rules.alive, 'maxNeighbours', 0, 8, 1).name('max neighbours')
+  let resurrectRulesFolder = rulesFolder.addFolder('Resurrect')
+  resurrectRulesFolder.add(gol.rules.dead, 'maxNeighbours', 0, 8, 1).name('neighbours')
+
+  const resetParam = {
+    reset: gol.reset
+  }
+  gui.add(resetParam, 'reset').name('Reset')
+
+  const pauseParam = {
+    pause: togglePause
+  }
+  gui.add(pauseParam, 'pause').name('Pause')
+  
+  
+  // Setup
   // @ts-ignore
   container = document.querySelector('#webGL')
 
@@ -52,48 +92,38 @@ const init = () => {
   renderer = new WebGLRenderer({ antialias: true })
   renderer.setClearColor(0xEEEEEE)
   camera = new PerspectiveCamera(75, width / height, .1, 1000)
+  camera.position.set(gol.width, gol.height, gol.depth)
+  // scene.add(new GridHelper(gol.width, gol.width / gol.cellSize))
   scene = new Scene()
   orbit = new OrbitControls(camera, renderer.domElement)
 
   container.append(renderer.domElement)
 
+
+  // Scene and Objects
   group = new Group()
+  group.position.set(-gol.width * gol.cellSize / 2, -gol.height * gol.cellSize / 2, -gol.depth * gol.cellSize / 2)
   scene.add(group)
 
+  // Boundingbox Mesh
+  boundingbox = new Mesh(new BoxGeometry(cubeSide, cubeSide, cubeSide), new MeshBasicMaterial({ color: 0x000000, wireframe: true }))
+  scene.add(boundingbox)
+
+  // Light
   light = new DirectionalLight(0xFFFFFF, .7)
   light.position.set(-100, 300, -100)
   scene.add(light)
 
-  gol = new GameOfLife(cubeSide, cubeSide, cubeSide)
 
-  boundingbox = new Mesh(new BoxGeometry(cubeSide, cubeSide, cubeSide), new MeshBasicMaterial({ color: 0x000000, wireframe: true }))
-  scene.add(boundingbox)
 
-  // scene.add(new GridHelper(gol.width, gol.width / gol.cellSize))
-  camera.position.set(gol.width, gol.height, gol.depth)
-
+  // Create Mesh
   geometry = new BoxGeometry(gol.cellSize, gol.cellSize, gol.cellSize)
   geometry.translate(gol.cellSize / 2, gol.cellSize / 2, gol.cellSize / 2)
   material = new MeshNormalMaterial()
 
-  material.onBeforeCompile = ( shader ) => {
-
-    
-    shader.uniforms.textures = {
-      // @ts-ignore
-      time: { value: 1.0 },
-		  resolution: { value: new Vector2(width, height) }
-    }
-
-    shader.vertexShader = shader.vertexShader
-
-    shader.fragmentShader = shader.fragmentShader
-  }
-  
+  // Instanced Mesh
   instacedMesh = new InstancedMesh(geometry, material, gol.width * gol.height * gol.depth)
   group.add(instacedMesh)
-
-  group.position.set(-gol.width * gol.cellSize / 2, -gol.height * gol.cellSize / 2, -gol.depth * gol.cellSize / 2)
 
   let index = 0
   let matrix = new Matrix4()
@@ -125,11 +155,14 @@ const loop = () => {
 
   requestAnimationFrame(loop)
 
+  // console.log('frame', Date.now())
+
+
 
   stats.begin()
 
 
-  console.log('Generation', gol.generation)
+  // console.log('Generation', gol.generation)
 
   orbit.update()
 
@@ -154,15 +187,27 @@ const resize = () => {
   renderer.setPixelRatio(ratio)
 }
 
+let frameRate = 1000 / fps
+let time = Date.now()
 const step = () => {
 
   if(pause) return
 
-  gol.iterate()
 
-  draw()
+  if(time + frameRate < Date.now()) {
 
-  if(gol.done) gol.reset()
+    // console.log('step', Date.now())
+
+
+    gol.iterate()
+
+    draw()
+    
+    if(gol.done) gol.reset()
+
+
+    time = Date.now()
+  }
 }
 
 const draw = () => {

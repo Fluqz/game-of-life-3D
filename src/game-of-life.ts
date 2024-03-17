@@ -27,6 +27,17 @@ export class GameOfLife {
 
     _changed: boolean = false
 
+    rules = {
+        alive: {
+            minNeighbours: 4,
+            maxNeighbours: 6
+        },
+        dead: {
+            minNeighbours: 5,
+            maxNeighbours: 5
+        }
+    }
+
 
     constructor(w?:number, h?:number, d?:number, divition?:number, probabilityOfAliveAtStart?: number) {
 
@@ -133,13 +144,13 @@ export class GameOfLife {
             // ONE OR THE OTHER OR BOTH
             // if (cell.neighbours <= 6) cell.state = false // Die unless it has 2 or 3 neighbours
             // @ts-ignore
-            if (cell.neighbours < 4 || cell.neighbours > 6) cell.state = false // Die unless it has 2 or 3 neighbours
+            if (cell.neighbours < this.rules.alive.minNeighbours || cell.neighbours > this.rules.alive.maxNeighbours) cell.state = false // Die unless it has 2 or 3 neighbours
         }
         else { // The cell is dead: make it live if necessary  
 
             // ONE OR THE OTHER OR BOTH
             // if (cell.neighbours > 6) cell.state = true // Only if it has 3 neighbours
-            if (cell.neighbours == 5 ) cell.state = true // Only if it has 3 neighbours
+            if (cell.neighbours == this.rules.dead.minNeighbours) cell.state = true // Only if it has 3 neighbours
         }
     }
 
