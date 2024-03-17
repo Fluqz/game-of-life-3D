@@ -39,7 +39,8 @@ let boundingbox: Mesh
 
 let cubeSide: number = 80
 
-let fps = 1
+/** Max fps */
+let fps = 30
 
 const init = () => {
 
